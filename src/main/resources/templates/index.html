@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html xmlns:th="https://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<h3>Izaberite fajl:</h3>
+<form method="POST" th:action="@{/excel/upload}" action="#" enctype="multipart/form-data">
+    <table>
+        <tr>
+            <td><label path="file">Izaberite fajl:</label></td>
+            <td><input type="file" name="file" /></td>
+        </tr>
+        <tr>
+            <td><input type="submit" value="Submit" /></td>
+        </tr>
+    </table>
+</form>
+<a href="/check">proveri porudžbine</a>
+<table>
+    <thead>
+        <tr>
+            <td>Код пошиљке:</td>
+            <td>Корисник:</td>
+            <td>Телефон:</td>
+            <td>Тренутни статус:</td>
+            <td>Локација:</td>
+        </tr>
+    </thead>
+    <tbody>
+    <tr th:each="order:${ordersStatuses}">
+            <td th:text="${order.orders.orderId}"></td>
+            <td th:text="${order.orders.customers.name}"></td>
+            <td th:text="${order.orders.customers.phone}"></td>
+            <td th:text="${order.ordersStatusId.currentStatus}"></td>
+            <td th:text="${order.location}"></td>
+        </tr>
+    </tbody>
+</table>
+
+
+</body>
+</html>
