@@ -16,6 +16,14 @@ public interface OrdersStatusesRepository extends CrudRepository<OrdersStatuses,
             "and c.users.username = :username " +
             "and os.statusTime = (select MAX(os2.statusTime) from OrdersStatuses os2 " +
                 "where os2.ordersStatusId.orderId = os.ordersStatusId.orderId)")
-    List<OrdersStatuses> findUndeliveredOrderStatusForActiveUser(@Param("username") String username);
+    List<OrdersStatuses> findUndeliveredOrderStatusForUser(@Param("username") String username);
+    @Query("select os from OrdersStatuses os, Orders o, Customers c " +
+            "where os.ordersStatusId.orderId = o.orderId " +
+            "and o.status != 1 " +
+            "and o.customers = c.customerId " +
+            "and os.statusTime = (select MAX(os2.statusTime) from OrdersStatuses os2 " +
+            "where os2.ordersStatusId.orderId = os.ordersStatusId.orderId)")
+    List<OrdersStatuses> findUndeliveredOrderStatus();
+
 
 }

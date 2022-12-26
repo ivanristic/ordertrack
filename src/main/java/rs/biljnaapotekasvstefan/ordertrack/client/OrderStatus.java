@@ -51,7 +51,7 @@ public class OrderStatus {
     SendEmail sendEmail;
 
     //At minute 45 past hour 10 and 14 on every day-of-week from Monday through Friday.
-    @Scheduled(cron = "0 30 9,11,14,16,18 * * 1-5")
+    @Scheduled(cron = "0 30 9,11,14,16,18 * * MON-SAT")
     @GetMapping(value = "/check")
     public String CheckOrders() throws MalformedURLException, InterruptedException {
         System.out.println(LocalDateTime.now());
@@ -112,16 +112,18 @@ public class OrderStatus {
         //os.stream().forEach(o-> System.out.println(o.getOrdersStatusId().getOrderId() + ' ' + o.getLocation()));
 
         //model.addAttribute("orders", ordersRepository.findOrderByStatusNot(1));
-        model.addAttribute("ordersStatuses", ordersStatusesRepository.findUndeliveredOrderStatusForActiveUser(authentication.getName()));
+        model.addAttribute("ordersStatuses", ordersStatusesRepository.findUndeliveredOrderStatusForUser(authentication.getName()));
         return "index";
     }
 
-    @Scheduled(cron = "0 45 10,14,18 * * 1-5")
+    @Scheduled(cron = "0 45 10,14,18 * * MON-FRI")
     @GetMapping(value = "/sendemail")
     private void SendEmailForOrders(){
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        //Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        System.out.println(LocalDateTime.now());
+
         StringBuilder emailBody = new StringBuilder();
-        List<OrdersStatuses> ordersFailedList = ordersStatusesRepository.findUndeliveredOrderStatusForActiveUser(authentication.getName());
+        List<OrdersStatuses> ordersFailedList = ordersStatusesRepository.findUndeliveredOrderStatus();
         //ordersFailedList.stream().filter(e -> e.getCurrentStatus().equals("Pošiljka je preuzeta od pošiljaoca")).filter(ae -> ae.getLocation().contains("U magacinu")).collect(Collectors.toList());
         for (OrdersStatuses order : ordersFailedList) {
 // switch
