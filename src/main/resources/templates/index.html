@@ -2,14 +2,17 @@
 <html xmlns:th="https://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <title>Статуси пошиљки</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.1/jquery.min.js"></script>
+    <link th:href="@{/css/styles.css}" rel="stylesheet" />
+    <script type="text/javascript" th:src="@{/js/tables.js}"></script>
 </head>
 <body>
-<h3>Izaberite fajl:</h3>
+<h3>Изаберите табелу:</h3>
 <form method="POST" th:action="@{/excel/upload}" action="#" enctype="multipart/form-data">
     <table>
         <tr>
-            <td><label path="file">Izaberite fajl:</label></td>
+            <td><label path="file">Учитајте табелу:</label></td>
             <td><input type="file" name="file" /></td>
         </tr>
         <tr>
@@ -17,10 +20,37 @@
         </tr>
     </table>
 </form>
-<a href="/check">proveri porudžbine</a>
+<a href="/check">Провери поруџбине</a>
+<a href="/">Прикажи статусе</a>
+
+<div class="container">
+
+    <div class="table">
+        <div class="table-header">
+            <div class="header__item"><a id="shipment" class="filter__link" href="#">Број пошиљке</a></div>
+            <div class="header__item"><a id="package" class="filter__link filter__link--number" href="#">Код пошиљке</a></div>
+            <div class="header__item"><a id="consumer" class="filter__link filter__link--number" href="#">Корисник</a></div>
+            <div class="header__item"><a id="phone" class="filter__link filter__link--number" href="#">Телефон</a></div>
+            <div class="header__item"><a id="status" class="filter__link filter__link--number" href="#">Тренутни статус</a></div>
+            <div class="header__item"><a id="location" class="filter__link filter__link--number" href="#">Локација</a></div>
+        </div>
+        <div class="table-content">
+            <div class="table-row" th:each="order:${ordersStatuses}">
+                <div class="table-data" th:utext="${order.orders.shipmentNumber}"></div>
+                <div class="table-data" th:utext="${order.orders.orderId}"></div>
+                <div class="table-data" th:utext="${order.orders.customers.name}"></div>
+                <div class="table-data" th:utext="${order.orders.customers.phone}"></div>
+                <div class="table-data" th:utext="${order.ordersStatusId.currentStatus}"></div>
+                <div class="table-data" th:utext="${order.location}"></div>
+            </div>
+        </div>
+    </div>
+</div>
+<!--
 <table>
     <thead>
         <tr>
+            <td>Број пошиљке:</td>
             <td>Код пошиљке:</td>
             <td>Корисник:</td>
             <td>Телефон:</td>
@@ -30,6 +60,7 @@
     </thead>
     <tbody>
     <tr th:each="order:${ordersStatuses}">
+            <td th:text="${order.orders.shipmentNumber}"></td>
             <td th:text="${order.orders.orderId}"></td>
             <td th:text="${order.orders.customers.name}"></td>
             <td th:text="${order.orders.customers.phone}"></td>
@@ -38,7 +69,7 @@
         </tr>
     </tbody>
 </table>
-
+-->
 
 </body>
 </html>

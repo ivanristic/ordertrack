@@ -123,6 +123,6 @@ public class ReadExcel {
             e.printStackTrace();
         }
 
-        return "index";
+        return "redirect:/";
     }
 }

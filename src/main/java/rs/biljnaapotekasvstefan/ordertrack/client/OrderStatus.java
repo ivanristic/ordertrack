@@ -60,7 +60,7 @@ public class OrderStatus {
         List<Orders> ordersList = ordersRepository.findOrderByStatusNotAndCustomersUsersUsername(1, "line");
         ordersList.forEach(orders -> LoadPageAndCheckOrderStatus(orders));
 
-        return "index";
+        return "redirect:/";
     }
 
     public void LoadPageAndCheckOrderStatus(Orders order) {
@@ -127,36 +127,36 @@ public class OrderStatus {
 // switch
 
             if (order.getOrdersStatusId().getCurrentStatus().equals("Pošiljka je odbijena od strane primaoca")) {
-                emailBody.append(order.getOrdersStatusId().getOrderId()).append(" ").append(order.getOrdersStatusId().getCurrentStatus()).append(" ")
+                emailBody.append(order.getOrders().getShipmentNumber()).append(" ").append(order.getOrdersStatusId().getOrderId()).append(" ").append(order.getOrdersStatusId().getCurrentStatus()).append(" ")
                         .append(order.getOrders().getCustomers().getPhone()).append(" ").append(order.getOrders().getCustomers().getName())
                         .append("\n\n");
             }else if (order.getOrdersStatusId().getCurrentStatus().equals("Pokušana isporuka, nema nikoga na adresi")) {
-                emailBody.append(order.getOrdersStatusId().getOrderId()).append(" ").append(order.getOrdersStatusId().getCurrentStatus()).append(" ")
+                emailBody.append(order.getOrders().getShipmentNumber()).append(" ").append(order.getOrdersStatusId().getOrderId()).append(" ").append(order.getOrdersStatusId().getCurrentStatus()).append(" ")
                         .append(order.getOrders().getCustomers().getPhone()).append(" ").append(order.getOrders().getCustomers().getName())
                         .append("\n\n");
             }else if (order.getOrdersStatusId().getCurrentStatus().equals("Paket ostavljen u paketomatu")) {
 
                 if (Duration.between(order.getStatusTime(), LocalDateTime.now()).toHours() > 24) {
-                    emailBody.append(order.getOrdersStatusId().getOrderId()).append(" ").append(order.getOrdersStatusId().getCurrentStatus()).append(" ")
+                    emailBody.append(order.getOrders().getShipmentNumber()).append(" ").append(order.getOrdersStatusId().getOrderId()).append(" ").append(order.getOrdersStatusId().getCurrentStatus()).append(" ")
                             .append(order.getOrders().getCustomers().getPhone()).append(" ").append(order.getOrders().getCustomers().getName())
                             .append("\n\n");
                 }
             }else if (order.getOrdersStatusId().getCurrentStatus().equals("Preusmerena na paketomat")) {
 
                 if (Duration.between(order.getStatusTime(), LocalDateTime.now()).toHours() > 24) {
-                    emailBody.append(order.getOrdersStatusId().getOrderId()).append(" ").append(order.getOrdersStatusId().getCurrentStatus()).append(" ")
+                    emailBody.append(order.getOrders().getShipmentNumber()).append(" ").append(order.getOrdersStatusId().getOrderId()).append(" ").append(order.getOrdersStatusId().getCurrentStatus()).append(" ")
                             .append(order.getOrders().getCustomers().getPhone()).append(" ").append(order.getOrders().getCustomers().getName())
                             .append("\n\n");
                 }
                 //
             }else if (order.getOrdersStatusId().getCurrentStatus().equals("Pošiljka se vraća pošiljaocu")) {
 
-                emailBody.append(order.getOrdersStatusId().getOrderId()).append(" ").append(order.getOrdersStatusId().getCurrentStatus()).append(" ")
+                emailBody.append(order.getOrders().getShipmentNumber()).append(" ").append(order.getOrdersStatusId().getOrderId()).append(" ").append(order.getOrdersStatusId().getCurrentStatus()).append(" ")
                         .append(order.getOrders().getCustomers().getPhone()).append(" ").append(order.getOrders().getCustomers().getName())
                         .append("\n\n");
             }else if (order.getOrdersStatusId().getCurrentStatus().equals("Pokušana isporuka, netačna je adresa primaoca")) {
 
-                emailBody.append(order.getOrdersStatusId().getOrderId()).append(" ").append(order.getOrdersStatusId().getCurrentStatus()).append(" ")
+                emailBody.append(order.getOrders().getShipmentNumber()).append(" ").append(order.getOrdersStatusId().getOrderId()).append(" ").append(order.getOrdersStatusId().getCurrentStatus()).append(" ")
                         .append(order.getOrders().getCustomers().getPhone()).append(" ").append(order.getOrders().getCustomers().getName())
                         .append("\n\n");
 
@@ -164,21 +164,21 @@ public class OrderStatus {
 
                 if (Duration.between(order.getStatusTime(), LocalDateTime.now()).toHours() > 24) {
                     //System.out.println(Duration.between(order.getStatusTime(), LocalDateTime.now()).toHours());
-                    emailBody.append(order.getOrdersStatusId().getOrderId()).append(" ").append(order.getOrdersStatusId().getCurrentStatus()).append(" ")
+                    emailBody.append(order.getOrders().getShipmentNumber()).append(" ").append(order.getOrdersStatusId().getOrderId()).append(" ").append(order.getOrdersStatusId().getCurrentStatus()).append(" ")
                             .append(order.getOrders().getCustomers().getPhone()).append(" ").append(order.getOrders().getCustomers().getName())
                             .append("\n\n");
                 }
 
             }else if (order.getOrdersStatusId().getCurrentStatus().equals("Greška prilikom učitavanja stranice")) {
 
-                    emailBody.append(order.getOrdersStatusId().getOrderId()).append(" ").append(order.getOrdersStatusId().getCurrentStatus()).append(" ")
+                    emailBody.append(order.getOrders().getShipmentNumber()).append(" ").append(order.getOrdersStatusId().getOrderId()).append(" ").append(order.getOrdersStatusId().getCurrentStatus()).append(" ")
                             .append(order.getOrders().getCustomers().getPhone()).append(" ").append(order.getOrders().getCustomers().getName())
                             .append("\n\n");
 
             } else if (order.getLocation().contains("U magacinu centra")) {
 
                 if (Duration.between(order.getOrders().getOrderSent(), LocalDateTime.now()).toHours() > 24) {
-                    emailBody.append(order.getOrdersStatusId().getOrderId()).append(" ").append(order.getOrdersStatusId().getCurrentStatus()).append(" ")
+                    emailBody.append(order.getOrders().getShipmentNumber()).append(" ").append(order.getOrdersStatusId().getOrderId()).append(" ").append(order.getOrdersStatusId().getCurrentStatus()).append(" ")
                             .append(order.getOrders().getCustomers().getPhone()).append(" ").append(order.getOrders().getCustomers().getName())
                             .append("\n\n");
                 }
