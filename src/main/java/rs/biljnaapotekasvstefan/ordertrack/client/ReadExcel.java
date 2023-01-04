@@ -108,7 +108,7 @@ public class ReadExcel {
 
                             order.setOrderSent(LocalDateTime.parse(row.getCell(19).getDateCellValue().toString(), fmt));
                             order.setCustomers(customer);
-                            order.setStatus(0);
+                            //order.setStatus(0);
 
                             //orders.add(order);
                             //customer.setOrders(orders);

@@ -9,21 +9,24 @@ import java.util.*;
 
 public interface OrdersStatusesRepository extends CrudRepository<OrdersStatuses, Long> {
 
-    @Query("select os from OrdersStatuses os, Orders o, Customers c " +
+    @Query("select os from OrdersStatuses os, Orders o, Customers c, Statuses s " +
             "where os.ordersStatusId.orderId = o.orderId " +
-            "and o.status != 1 " +
+            "and os.ordersStatusId.statusId = s.statusId " +
+            "and s.delivered = 0" +
             "and o.customers = c.customerId " +
             "and c.users.username = :username " +
             "and os.statusTime = (select MAX(os2.statusTime) from OrdersStatuses os2 " +
                 "where os2.ordersStatusId.orderId = os.ordersStatusId.orderId)")
-    List<OrdersStatuses> findUndeliveredOrderStatusForUser(@Param("username") String username);
-    @Query("select os from OrdersStatuses os, Orders o, Customers c " +
+    List<OrdersStatuses> findUndeliveredOrdersForUser(@Param("username") String username);
+    /*
+    @Query("select os from OrdersStatuses os, Orders o, Customers c, Statuses s " +
             "where os.ordersStatusId.orderId = o.orderId " +
-            "and o.status != 1 " +
+            "and os.statusId = s.statusId " +
+            "and s.delivered = 0" +
             "and o.customers = c.customerId " +
             "and os.statusTime = (select MAX(os2.statusTime) from OrdersStatuses os2 " +
             "where os2.ordersStatusId.orderId = os.ordersStatusId.orderId)")
-    List<OrdersStatuses> findUndeliveredOrderStatus();
+    List<OrdersStatuses> findUndeliveredOrders();
 
-
+*/
 }

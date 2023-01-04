@@ -23,8 +23,8 @@ public class Orders {
     @Column
     private LocalDateTime orderSent;
 
-    @Column
-    private Integer status;
+    //@Column
+    //private Integer status;
 
     @ManyToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "customerId")

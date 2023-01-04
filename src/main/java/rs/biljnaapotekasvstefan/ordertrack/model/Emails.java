@@ -1,5 +1,6 @@
 package rs.biljnaapotekasvstefan.ordertrack.model;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.GenericGenerator;
@@ -10,7 +11,7 @@ import javax.persistence.*;
 @Table(schema="ord")
 @Getter
 @Setter
-public class Email {
+public class Emails {
 
     @Id
     @GeneratedValue(strategy= GenerationType.AUTO, generator="native")
@@ -20,5 +21,10 @@ public class Email {
 
     @Column
     private String email;
+
+    @JsonBackReference
+    @ManyToOne
+    @JoinColumn(name = "username", updatable = false, nullable = false)
+    private Users users;
 
 }

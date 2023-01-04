@@ -1,13 +1,12 @@
 package rs.biljnaapotekasvstefan.ordertrack.model;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
 import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.GenericGenerator;
 
 import javax.persistence.*;
-import java.util.List;
+import java.util.Set;
 
 @Entity
 @Table(schema="ord")
@@ -37,7 +36,7 @@ public class Customers {
     private Users users;
 
     @OneToMany(mappedBy = "customers")
-    private List<Orders> orders;
+    private Set<Orders> orders;
 
 
 }

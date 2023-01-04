@@ -11,11 +11,8 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import rs.biljnaapotekasvstefan.ordertrack.controller.SendEmail;
-import rs.biljnaapotekasvstefan.ordertrack.model.Orders;
-import rs.biljnaapotekasvstefan.ordertrack.model.OrdersStatusId;
-import rs.biljnaapotekasvstefan.ordertrack.model.OrdersStatuses;
-import rs.biljnaapotekasvstefan.ordertrack.repository.OrdersRepository;
-import rs.biljnaapotekasvstefan.ordertrack.repository.OrdersStatusesRepository;
+import rs.biljnaapotekasvstefan.ordertrack.model.*;
+import rs.biljnaapotekasvstefan.ordertrack.repository.*;
 import rs.biljnaapotekasvstefan.ordertrack.scrape.engine.ScrapeLoader;
 import rs.biljnaapotekasvstefan.ordertrack.scrape.helper.ScrapeHelper;
 import rs.biljnaapotekasvstefan.ordertrack.scrape.loader.PageLoaderImpl;
@@ -28,6 +25,7 @@ import java.time.LocalDateTime;
 import java.time.Period;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Controller
 public class OrderStatus {
@@ -47,6 +45,10 @@ public class OrderStatus {
     @Autowired
     OrdersRepository ordersRepository;
 
+
+    @Autowired
+    UsersRepository usersRepository;
+
     @Autowired
     SendEmail sendEmail;
 
@@ -57,7 +59,8 @@ public class OrderStatus {
         System.out.println(LocalDateTime.now());
 
         //List<Orders> ordersList = ordersRepository.findOrderByStatusNot(1);
-        List<Orders> ordersList = ordersRepository.findOrderByStatusNotAndCustomersUsersUsername(1, "line");
+        //List<Orders> ordersList = ordersRepository.findOrderByStatusNotAndCustomersUsersUsername(1, "line");
+        List<Orders> ordersList = ordersRepository.findOrderByOrdersStatusesStatusesDelivered(false);
         ordersList.forEach(orders -> LoadPageAndCheckOrderStatus(orders));
 
         return "redirect:/";
@@ -78,23 +81,24 @@ public class OrderStatus {
             content = scrapeLoader.loadAndGetPageContent(new URL(dexpressUrl + order.getOrderId()), pageLoader);
 
             orderElements = ScrapeHelper.getElements(ScrapeHelper.createDocument(content), "div.form-tracking-info table tbody tr td");
-
-            ordersStatusId.setCurrentStatus(orderElements.get(11).text());
+            // setujemo status
+            ordersStatuses.getStatuses().setStatus(orderElements.get(11).text());
 
             ordersStatuses.setLocation(orderElements.get(13).text());
             ordersStatuses.setStatusTime(LocalDateTime.parse(orderElements.get(9).text(), DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm:ss")));
             ordersStatuses.setRegionalCenterPhone(orderElements.get(15).text());
             ordersStatuses.setOrders(order);
+            /*
             if (orderElements.get(11).text().equals("Pošiljka je isporučena primaocu") || orderElements.get(11).text().equals("Pošiljka je vraćena pošiljaocu")) {
                 System.out.println(ANSI_RED + orderElements.get(11) + " " + order.getOrderId() + ANSI_RESET);
-                order.setStatus(1);
+                //order.setStatus(1);
             } else {
                 System.out.println(ANSI_GREEN + orderElements.get(11) + " " + order.getOrderId() + ANSI_RESET);
             }
-
+            */
         } catch (Exception e) {
-            ordersStatusId.setCurrentStatus("Greška prilikom učitavanja stranice");
-            order.setStatus(2);
+            //ordersStatusId.setCurrentStatus("Greška prilikom učitavanja stranice");
+            //order.setStatus(2);
             // System.out.println(ANSI_PURPLE + orderElements.eachText() + " " + order.getId() + ANSI_RESET);
             //sendEmail.sendEmails("Porudžbinu " + order.getId() + " nije moguće očitati sa D-express sajta");
             //e.printStackTrace();
@@ -112,20 +116,41 @@ public class OrderStatus {
         //os.stream().forEach(o-> System.out.println(o.getOrdersStatusId().getOrderId() + ' ' + o.getLocation()));
 
         //model.addAttribute("orders", ordersRepository.findOrderByStatusNot(1));
-        model.addAttribute("ordersStatuses", ordersStatusesRepository.findUndeliveredOrderStatusForUser(authentication.getName()));
+        model.addAttribute("ordersStatuses", ordersStatusesRepository.findUndeliveredOrdersForUser(authentication.getName()));
         return "index";
     }
 
     @Scheduled(cron = "0 45 10,14,18 * * MON-FRI")
     @GetMapping(value = "/sendemail")
-    private void SendEmailForOrders(){
-        //Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+    private String SendEmailForOrders(){
+
         System.out.println(LocalDateTime.now());
 
         StringBuilder emailBody = new StringBuilder();
-        List<OrdersStatuses> ordersFailedList = ordersStatusesRepository.findUndeliveredOrderStatus();
+
+        List<Users> usersList = (List<Users>) usersRepository.findAll();
+        //List<Emails> emailsList = (List<Emails>) emailsRepository.findAll();
+        String[] sendTo = null;
+        //String[] s = emails.stream().map(e -> e.getEmail()).toArray(String[]::new);
+        for (Users user:usersList) {
+            List<OrdersStatuses> ordersFailedList = ordersStatusesRepository.findUndeliveredOrdersForUser(user.getUsername());
+
+            sendTo = user.getEmails().stream().filter(e -> e.getUsers().getUsername().equals(user.getUsername())).map(u -> u.getEmail()).toArray(String[]::new);
+
+            //List<Statuses> statusesList = (List<Statuses>) statusesRepository.findAll();
+
+            for (OrdersStatuses order : ordersFailedList) {
+               if(order.getStatuses().getTrack().equals(true) && Duration.between(order.getStatusTime(), LocalDateTime.now()).toHours() > order.getStatuses().getTimeDelay()){
+                   emailBody.append(order.getOrders().getShipmentNumber()).append(" ").append(order.getOrdersStatusId().getOrderId()).append(" ").append(order.getStatuses().getStatus()).append(" ")
+                           .append(order.getOrders().getCustomers().getPhone()).append(" ").append(order.getOrders().getCustomers().getName())
+                           .append("\n\n");
+               }
+            }
+            //System.out.println(sendTo);
+        }
+
         //ordersFailedList.stream().filter(e -> e.getCurrentStatus().equals("Pošiljka je preuzeta od pošiljaoca")).filter(ae -> ae.getLocation().contains("U magacinu")).collect(Collectors.toList());
-        for (OrdersStatuses order : ordersFailedList) {
+        /*for (OrdersStatuses order : ordersFailedList) {
 // switch
 
             if (order.getOrdersStatusId().getCurrentStatus().equals("Pošiljka je odbijena od strane primaoca")) {
@@ -188,11 +213,12 @@ public class OrderStatus {
             }
 
         }
-
+*/
             if (emailBody.length() > 0) {
-                sendEmail.sendEmails(emailBody.toString());
-                System.out.println(emailBody.toString());
+                sendEmail.sendEmails(emailBody.toString(), sendTo);
+                //System.out.println(emailBody.toString());
             }
+        return "redirect:/";
     }
 
 }

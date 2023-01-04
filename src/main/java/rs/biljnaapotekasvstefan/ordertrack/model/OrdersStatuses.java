@@ -8,7 +8,7 @@ import javax.persistence.*;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(schema="ord", uniqueConstraints = @UniqueConstraint(columnNames = { "currentStatus", "orderId" }))
+@Table(schema="ord", name="orders_statuses")
 @Getter
 @Setter
 @ToString
@@ -27,7 +27,11 @@ public class OrdersStatuses {
     private String regionalCenterPhone;
 
     @ManyToOne
-    @JoinColumn(name = "orderId", nullable = false, insertable = false, updatable = false)
+    @JoinColumn(name = "statusId", insertable = false, updatable = false)
+    private Statuses statuses;
+    @ManyToOne
+    @JoinColumn(name = "orderId", insertable = false, updatable = false)
     private Orders orders;
+
 
 }

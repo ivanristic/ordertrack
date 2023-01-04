@@ -9,8 +9,9 @@ import java.util.List;
 public interface OrdersRepository extends CrudRepository<Orders, Long> {
     Orders findOrdersByOrderId(String orderNumber);
     //List<Orders> findOrdersByStatus(Integer status);
-    List<Orders> findOrderByStatusNotAndCustomersUsersUsername(Integer status, String username);
+    //List<Orders> findOrderByStatusNotAndCustomersUsersUsername(Integer status, String username);
 
+    List<Orders> findOrderByOrdersStatusesStatusesDelivered(Boolean status);
     //List<Orders> findOrdersByStatusAndStatusDateAfter(Boolean status, LocalDateTime dateTime);
 
 }

@@ -14,8 +14,9 @@ import java.io.Serializable;
 public class OrdersStatusId implements Serializable {
 
     private static final long serialVersionUID = -7558640877458478428L;
+
     @Column
-    private String currentStatus;
+    private Long statusId;
 
     @Column
     private String orderId;

@@ -32,7 +32,7 @@ public class Users  implements Serializable {
 	@Column(name = "username", unique = true, nullable = false, length = 50)
 	private String username;
 
-	@Column(name = "password", nullable = false, length = 60)
+	@Column(name = "password", nullable = false)
 	private String password;
 
 	@Column(name = "enabled", nullable = false)
@@ -45,5 +45,10 @@ public class Users  implements Serializable {
 	@JsonManagedReference
 	@OneToMany(fetch = FetchType.LAZY, mappedBy = "users")
 	private List<Customers> customers;
+
+	@JsonManagedReference
+	@OneToMany(fetch = FetchType.LAZY, mappedBy = "users")
+	private List<Emails> emails;
+
 
 }

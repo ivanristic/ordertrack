@@ -55,6 +55,7 @@ public class SecurityConfig {
 
 	@Bean
 	public AuthenticationManager authManager(HttpSecurity http, BCryptPasswordEncoder bCryptPasswordEncoder)  throws Exception {
+		//System.out.println(bCryptPasswordEncoder.encode("nirvana"));
 		return http.getSharedObject(AuthenticationManagerBuilder.class)
 				//.userDetailsService(userDetailsService)
 				.jdbcAuthentication()
