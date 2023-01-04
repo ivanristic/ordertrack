@@ -85,7 +85,11 @@ public class ReadExcel {
                         Orders order = ordersRepository.findOrdersByOrderId(row.getCell(0).getStringCellValue());
                         if(order == null) {
                             order = new Orders();
-                            order.setShipmentNumber(file.getOriginalFilename());
+                            Pattern p = Pattern.compile("\\d+");
+                            Matcher m = p.matcher(file.getOriginalFilename());
+                            String shipmentNumber = m.find() + "/" + Year.now().toString();
+
+                            order.setShipmentNumber(shipmentNumber);
                             order.setOrderId(row.getCell(0).getStringCellValue());
                             // when parsing, if finds ambiguous CET or CEST, it uses Berlin as prefered timezone
                             Set<ZoneId> set = new HashSet<>();
