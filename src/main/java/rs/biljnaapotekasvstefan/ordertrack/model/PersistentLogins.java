@@ -25,13 +25,14 @@ public class PersistentLogins implements java.io.Serializable {
 	 */
 	private static final long serialVersionUID = -8340980993971787034L;
 	@Id
-	@Column(name = "series", unique = true, nullable = false, length = 64)
+	@Column(name = "series", unique = true, nullable = false)
 	private String series;
 
-	@Column(name = "username", nullable = false, length = 64)
-	private String username;
+	@OneToOne
+	@JoinColumn(name = "username")
+	private Users users;
 
-	@Column(name = "token", nullable = false, length = 64)
+	@Column(name = "token", nullable = false)
 	private String token;
 
 	@Temporal(TemporalType.TIMESTAMP)

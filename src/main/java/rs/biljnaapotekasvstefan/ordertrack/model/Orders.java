@@ -30,7 +30,7 @@ public class Orders {
     @JoinColumn(name = "customerId")
     private Customers customers;
 
-    @OneToMany(mappedBy = "orders")
+    @OneToMany(mappedBy = "orders", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     private Set<OrdersStatuses> ordersStatuses;
 
 }

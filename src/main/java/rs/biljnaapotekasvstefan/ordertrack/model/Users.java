@@ -50,5 +50,9 @@ public class Users  implements Serializable {
 	@OneToMany(fetch = FetchType.LAZY, mappedBy = "users")
 	private List<Emails> emails;
 
+	@JsonManagedReference
+	@OneToOne
+	private PersistentLogins persistentLogins;
+
 
 }

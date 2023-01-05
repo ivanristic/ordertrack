@@ -9,20 +9,22 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-import rs.biljnaapotekasvstefan.ordertrack.model.Customers;
-import rs.biljnaapotekasvstefan.ordertrack.model.Orders;
-import rs.biljnaapotekasvstefan.ordertrack.model.Users;
+import rs.biljnaapotekasvstefan.ordertrack.model.*;
 import rs.biljnaapotekasvstefan.ordertrack.repository.CustomerRepository;
 import rs.biljnaapotekasvstefan.ordertrack.repository.OrdersRepository;
+import rs.biljnaapotekasvstefan.ordertrack.repository.OrdersStatusesRepository;
 import rs.biljnaapotekasvstefan.ordertrack.repository.UsersRepository;
 
 import java.io.FileInputStream;
 import java.time.LocalDateTime;
+import java.time.Year;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeFormatterBuilder;
 import java.time.format.TextStyle;
 import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 
 @Controller
@@ -36,6 +38,8 @@ public class ReadExcel {
     @Autowired
     OrdersRepository ordersRepository;
 
+    @Autowired
+    OrdersStatusesRepository ordersStatusesRepository;
 
     //@Scheduled(cron = "10 * * * * *")
     @PostMapping(value = "/excel/upload")
@@ -60,6 +64,7 @@ public class ReadExcel {
 
             //@TODO proveriti da li ima potrebe za odlaskom u bazu ili može kroz kreiranje novog objekta tipa users
             Users login = usersRepository.findByUsername(authentication.getName());
+
 
             while (rowIterator.hasNext()) {
                 DateTimeFormatter formatter = DateTimeFormatter.ofPattern("mm.dd.yyyy");
@@ -87,8 +92,10 @@ public class ReadExcel {
                             order = new Orders();
                             Pattern p = Pattern.compile("\\d+");
                             Matcher m = p.matcher(file.getOriginalFilename());
-                            String shipmentNumber = m.find() + "/" + Year.now().toString();
-
+                            String shipmentNumber = null;
+                            if(m.find()) {
+                                shipmentNumber = m.group(0) + "/" + Year.now().toString();
+                            }
                             order.setShipmentNumber(shipmentNumber);
                             order.setOrderId(row.getCell(0).getStringCellValue());
                             // when parsing, if finds ambiguous CET or CEST, it uses Berlin as prefered timezone
@@ -113,7 +120,13 @@ public class ReadExcel {
                             order.setOrderSent(LocalDateTime.parse(row.getCell(19).getDateCellValue().toString(), fmt));
                             order.setCustomers(customer);
                             //order.setStatus(0);
-
+                            Set<OrdersStatuses> ordersStatusesSet = new HashSet<>();
+                            OrdersStatuses orderStatus = new OrdersStatuses();
+                            OrdersStatusId ordersStatusId = new OrdersStatusId(11L, row.getCell(0).getStringCellValue());
+                            orderStatus.setOrdersStatusId(ordersStatusId);
+                            orderStatus.setStatusTime(LocalDateTime.parse(row.getCell(19).getDateCellValue().toString(), fmt));
+                            ordersStatusesSet.add(orderStatus);
+                            order.setOrdersStatuses(ordersStatusesSet);
                             //orders.add(order);
                             //customer.setOrders(orders);
                             ordersRepository.save(order);

@@ -7,4 +7,5 @@ import rs.biljnaapotekasvstefan.ordertrack.model.Statuses;
 @Repository
 public interface StatusesRepository extends CrudRepository<Statuses, Long> {
 
+    Statuses findByStatus(String status);
 }

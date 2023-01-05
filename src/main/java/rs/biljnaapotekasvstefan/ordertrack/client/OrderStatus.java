@@ -24,7 +24,9 @@ import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.Period;
 import java.time.format.DateTimeFormatter;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Controller
@@ -45,7 +47,8 @@ public class OrderStatus {
     @Autowired
     OrdersRepository ordersRepository;
 
-
+    @Autowired
+    StatusesRepository statusesRepository;
     @Autowired
     UsersRepository usersRepository;
 
@@ -60,7 +63,7 @@ public class OrderStatus {
 
         //List<Orders> ordersList = ordersRepository.findOrderByStatusNot(1);
         //List<Orders> ordersList = ordersRepository.findOrderByStatusNotAndCustomersUsersUsername(1, "line");
-        List<Orders> ordersList = ordersRepository.findOrderByOrdersStatusesStatusesDelivered(false);
+        List<Orders> ordersList = ordersRepository.findUndeliveredOrders();
         ordersList.forEach(orders -> LoadPageAndCheckOrderStatus(orders));
 
         return "redirect:/";
@@ -73,49 +76,37 @@ public class OrderStatus {
         String ANSI_PURPLE = "\u001B[35m";
         String content = null;
         Elements orderElements = null;
+
         OrdersStatuses ordersStatuses = new OrdersStatuses();
         OrdersStatusId ordersStatusId= new OrdersStatusId();
-        ordersStatusId.setOrderId(order.getOrderId());
+
         try {
 
             content = scrapeLoader.loadAndGetPageContent(new URL(dexpressUrl + order.getOrderId()), pageLoader);
 
             orderElements = ScrapeHelper.getElements(ScrapeHelper.createDocument(content), "div.form-tracking-info table tbody tr td");
             // setujemo status
-            ordersStatuses.getStatuses().setStatus(orderElements.get(11).text());
+            Statuses statuses = statusesRepository.findByStatus(orderElements.get(11).text());
+            ordersStatusId.setStatusId(statuses.getStatusId());
+            ordersStatusId.setOrderId(order.getOrderId());
+            //ordersStatuses.getOrdersStatusId().setStatusId(statuses.getStatusId());
+            //ordersStatuses.getOrdersStatusId().setOrderId(order.getOrderId());
+            ordersStatuses.setStatuses(statuses);
 
             ordersStatuses.setLocation(orderElements.get(13).text());
             ordersStatuses.setStatusTime(LocalDateTime.parse(orderElements.get(9).text(), DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm:ss")));
             ordersStatuses.setRegionalCenterPhone(orderElements.get(15).text());
-            ordersStatuses.setOrders(order);
-            /*
-            if (orderElements.get(11).text().equals("Pošiljka je isporučena primaocu") || orderElements.get(11).text().equals("Pošiljka je vraćena pošiljaocu")) {
-                System.out.println(ANSI_RED + orderElements.get(11) + " " + order.getOrderId() + ANSI_RESET);
-                //order.setStatus(1);
-            } else {
-                System.out.println(ANSI_GREEN + orderElements.get(11) + " " + order.getOrderId() + ANSI_RESET);
-            }
-            */
-        } catch (Exception e) {
-            //ordersStatusId.setCurrentStatus("Greška prilikom učitavanja stranice");
-            //order.setStatus(2);
-            // System.out.println(ANSI_PURPLE + orderElements.eachText() + " " + order.getId() + ANSI_RESET);
-            //sendEmail.sendEmails("Porudžbinu " + order.getId() + " nije moguće očitati sa D-express sajta");
-            //e.printStackTrace();
-        } finally {
             ordersStatuses.setOrdersStatusId(ordersStatusId);
-            ordersStatusesRepository.save(ordersStatuses);
+
+            order.getOrdersStatuses().add(ordersStatuses);
             ordersRepository.save(order);
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
     @GetMapping(value = "/")
     private String ShowOrders(Model model){
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        //authentication.getName();
-        //List<OrdersStatuses> os = ordersStatusesRepository.findUndeliveredOrderStatusForActiveUser(authentication.getName());
-        //os.stream().forEach(o-> System.out.println(o.getOrdersStatusId().getOrderId() + ' ' + o.getLocation()));
-
-        //model.addAttribute("orders", ordersRepository.findOrderByStatusNot(1));
         model.addAttribute("ordersStatuses", ordersStatusesRepository.findUndeliveredOrdersForUser(authentication.getName()));
         return "index";
     }
