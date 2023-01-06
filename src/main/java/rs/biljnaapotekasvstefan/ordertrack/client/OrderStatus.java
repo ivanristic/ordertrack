@@ -17,7 +17,7 @@ import rs.biljnaapotekasvstefan.ordertrack.scrape.engine.ScrapeLoader;
 import rs.biljnaapotekasvstefan.ordertrack.scrape.helper.ScrapeHelper;
 import rs.biljnaapotekasvstefan.ordertrack.scrape.loader.PageLoaderImpl;
 
-import javax.mail.internet.AddressException;
+import jakarta.mail.internet.AddressException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.time.Duration;

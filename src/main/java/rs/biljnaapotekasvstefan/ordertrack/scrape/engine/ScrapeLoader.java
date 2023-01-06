@@ -1,6 +1,7 @@
 package rs.biljnaapotekasvstefan.ordertrack.scrape.engine;
 
 
+import jakarta.annotation.PreDestroy;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WindowType;
 import org.openqa.selenium.chrome.ChromeDriver;
@@ -15,7 +16,7 @@ import rs.biljnaapotekasvstefan.ordertrack.scrape.loader.PageLoader;
 
 import io.github.bonigarcia.wdm.WebDriverManager;
 
-import javax.annotation.PreDestroy;
+
 import java.io.Serializable;
 import java.net.MalformedURLException;
 import java.net.URL;
