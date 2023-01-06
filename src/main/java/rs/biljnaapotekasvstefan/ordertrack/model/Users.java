@@ -44,10 +44,10 @@ public class Users  implements Serializable {
 
 	@JsonManagedReference
 	@OneToMany(fetch = FetchType.LAZY, mappedBy = "users")
-	private List<Customers> customers;
+	private List<Orders> orders;
 
 	@JsonManagedReference
-	@OneToMany(fetch = FetchType.LAZY, mappedBy = "users")
+	@OneToMany(fetch = FetchType.EAGER, mappedBy = "users")
 	private List<Emails> emails;
 
 	@JsonManagedReference
