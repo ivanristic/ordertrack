@@ -63,7 +63,7 @@ public class ReadExcel {
             Iterator<Row> rowIterator = sheet.iterator();
 
             //@TODO proveriti da li ima potrebe za odlaskom u bazu ili može kroz kreiranje novog objekta tipa users
-            Users login = usersRepository.findByUsername(authentication.getName());
+            //Users login = usersRepository.findByUsername(authentication.getName());
 
 
             while (rowIterator.hasNext()) {
@@ -86,7 +86,7 @@ public class ReadExcel {
                         customer.setPhone(row.getCell(5).getStringCellValue().replace("/", "").replace("-", ""));
 
                         //login.setUsername(authentication.getName());
-                        customer.setUsers(login);
+                        //customer.setUsers(login);
                         Orders order = ordersRepository.findOrdersByOrderId(row.getCell(0).getStringCellValue());
                         if(order == null) {
                             order = new Orders();
@@ -116,7 +116,10 @@ public class ReadExcel {
                             //DateTimeFormatter formater = DateTimeFormatter.ofPattern("E dd MMM z yyyy HH:mm:ss", Locale.ENGLISH);
                             //ZonedDateTime parsedDate = ZonedDateTime.parse(row.getCell(19).getDateCellValue().toString(), formatter);
                             //LocalDateTime z1 = LocalDateTime.parse(row.getCell(19).getDateCellValue().toString(), fmt);
-
+                            Users users = new Users();
+                            users.setUsername(authentication.getName());
+                            order.setUsers(users);
+                            
                             order.setOrderSent(LocalDateTime.parse(row.getCell(19).getDateCellValue().toString(), fmt));
                             order.setCustomers(customer);
                             //order.setStatus(0);

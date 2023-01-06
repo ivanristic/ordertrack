@@ -30,10 +30,7 @@ public class Customers {
 
     @Column
     private String phone;
-    @JsonBackReference
-    @ManyToOne
-    @JoinColumn(name = "username", updatable = false, nullable = false)
-    private Users users;
+
 
     @OneToMany(mappedBy = "customers")
     private Set<Orders> orders;

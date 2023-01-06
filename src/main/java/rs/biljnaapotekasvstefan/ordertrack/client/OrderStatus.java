@@ -58,7 +58,7 @@ public class OrderStatus {
     //At minute 45 past hour 10 and 14 on every day-of-week from Monday through Friday.
     @Scheduled(cron = "0 30 9,11,14,16,18 * * MON-SAT")
     @GetMapping(value = "/check")
-    public String CheckOrders() throws MalformedURLException, InterruptedException {
+    public String CheckOrders() {
         System.out.println(LocalDateTime.now());
 
         //List<Orders> ordersList = ordersRepository.findOrderByStatusNot(1);
@@ -113,7 +113,7 @@ public class OrderStatus {
 
     @Scheduled(cron = "0 45 10,14,18 * * MON-FRI")
     @GetMapping(value = "/sendemail")
-    private String SendEmailForOrders(){
+    private void SendEmailForOrders(){
 
         System.out.println(LocalDateTime.now());
 
@@ -209,7 +209,6 @@ public class OrderStatus {
                 sendEmail.sendEmails(emailBody.toString(), sendTo);
                 //System.out.println(emailBody.toString());
             }
-        return "redirect:/";
     }
 
 }

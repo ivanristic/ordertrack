@@ -1,5 +1,6 @@
 package rs.biljnaapotekasvstefan.ordertrack.model;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -23,8 +24,10 @@ public class Orders {
     @Column
     private LocalDateTime orderSent;
 
-    //@Column
-    //private Integer status;
+    @JsonBackReference
+    @ManyToOne
+    @JoinColumn(name = "username", updatable = false, nullable = false)
+    private Users users;
 
     @ManyToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "customerId")
