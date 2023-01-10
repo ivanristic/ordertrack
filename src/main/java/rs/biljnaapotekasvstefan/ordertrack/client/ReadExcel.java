@@ -1,5 +1,6 @@
 package rs.biljnaapotekasvstefan.ordertrack.client;
 
+import jakarta.mail.MessagingException;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
@@ -9,13 +10,12 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import rs.biljnaapotekasvstefan.ordertrack.controller.ReceiveEmail;
 import rs.biljnaapotekasvstefan.ordertrack.model.*;
 import rs.biljnaapotekasvstefan.ordertrack.repository.CustomerRepository;
 import rs.biljnaapotekasvstefan.ordertrack.repository.OrdersRepository;
-import rs.biljnaapotekasvstefan.ordertrack.repository.OrdersStatusesRepository;
-import rs.biljnaapotekasvstefan.ordertrack.repository.UsersRepository;
 
-import java.io.FileInputStream;
+import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.Year;
 import java.time.ZoneId;
@@ -32,29 +32,24 @@ public class ReadExcel {
     @Autowired
     CustomerRepository customerRepository;
 
-    @Autowired
-    UsersRepository usersRepository;
 
     @Autowired
     OrdersRepository ordersRepository;
-
     @Autowired
-    OrdersStatusesRepository ordersStatusesRepository;
+    ReceiveEmail receiveEmail;
 
     //@Scheduled(cron = "10 * * * * *")
     @PostMapping(value = "/excel/upload")
-    public String readExcel(@RequestPart("file") MultipartFile file) {
+    public String readExcel(@RequestPart("file") MultipartFile excel) throws MessagingException, IOException {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         //Users loggedinUser = (Users) authentication.getPrincipal();
         //String currentPrincipalName = authentication.getName();
 
-        System.out.println(authentication.getName());
+        receiveEmail.read();
         try {
            // System.out.println(file.getOriginalFilename());
-           FileInputStream files = (FileInputStream) file.getInputStream();
-
-            //Create Workbook instance holding reference to .xlsx file
-            XSSFWorkbook workbook = new XSSFWorkbook(files);
+           //FileInputStream files = (FileInputStream) file.getInputStream();
+            XSSFWorkbook workbook = new XSSFWorkbook(excel.getInputStream());
 
             //Get first/desired sheet from the workbook
             XSSFSheet sheet = workbook.getSheetAt(0);
@@ -91,7 +86,7 @@ public class ReadExcel {
                         if(order == null) {
                             order = new Orders();
                             Pattern p = Pattern.compile("\\d+");
-                            Matcher m = p.matcher(file.getOriginalFilename());
+                            Matcher m = p.matcher(excel.getOriginalFilename());
                             String shipmentNumber = null;
                             if(m.find()) {
                                 shipmentNumber = m.group(0) + "/" + Year.now().toString();
@@ -137,7 +132,6 @@ public class ReadExcel {
                     }
                 }
             }
-            files.close();
 
         } catch (Exception e) {
             e.printStackTrace();
