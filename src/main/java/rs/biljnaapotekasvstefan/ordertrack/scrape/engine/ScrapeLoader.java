@@ -14,7 +14,6 @@ import org.springframework.stereotype.Component;
 import rs.biljnaapotekasvstefan.ordertrack.config.ScrapeConfig;
 import rs.biljnaapotekasvstefan.ordertrack.scrape.loader.PageLoader;
 
-import io.github.bonigarcia.wdm.WebDriverManager;
 
 
 import java.io.Serializable;
@@ -26,11 +25,11 @@ public class ScrapeLoader {
 
     private final WebDriver webDriver;
     private final String firstTab;
-    //private final ScrapeConfig scrapeConfig;
+    private final ScrapeConfig scrapeConfig;
 
-   //public ScrapeLoader(ScrapeConfig scrapeConfig) throws MalformedURLException {
-    //    this.scrapeConfig = scrapeConfig;
-    public ScrapeLoader() throws MalformedURLException {
+   public ScrapeLoader(ScrapeConfig scrapeConfig) throws MalformedURLException {
+       this.scrapeConfig = scrapeConfig;
+    //public ScrapeLoader() throws MalformedURLException {
         ChromeOptions chromeOptions = new ChromeOptions();
         chromeOptions.addArguments("disable-infobars");
         chromeOptions.addArguments("--disable-extensions");
@@ -38,7 +37,7 @@ public class ScrapeLoader {
         chromeOptions.addArguments("--headless");
         chromeOptions.addArguments("--no-sandbox");
         chromeOptions.addArguments("--disable-dev-shm-usage");
-        WebDriverManager.chromedriver().setup();
+        //WebDriverManager.chromedriver().setup();
         //URL remote = new URL("http://chrome:4444/wd/hub");
         //this.webDriver = new RemoteWebDriver(remote, chromeOptions);
         this.webDriver = new ChromeDriver(chromeOptions);

@@ -8,9 +8,9 @@ import org.springframework.stereotype.Component;
 
 import jakarta.annotation.PostConstruct;
 
-//@Getter
-//@Setter
-//@Configuration
+@Getter
+@Setter
+@Configuration
 public class ScrapeConfig {
 
     @Value("${webdriver.path}")

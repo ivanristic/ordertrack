@@ -27,6 +27,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 @Controller
@@ -56,7 +57,7 @@ public class OrderStatus {
     SendEmail sendEmail;
 
     //At minute 45 past hour 10 and 14 on every day-of-week from Monday through Friday.
-    @Scheduled(cron = "0 30 9,11,14,16,18 * * MON-SAT")
+    @Scheduled(cron = "0 30 9,11,14,16,18 * * MON-SAT", zone="CET")
     @GetMapping(value = "/check")
     public String CheckOrders() {
         System.out.println(LocalDateTime.now());
@@ -93,13 +94,16 @@ public class OrderStatus {
             //ordersStatuses.getOrdersStatusId().setOrderId(order.getOrderId());
             ordersStatuses.setStatuses(statuses);
 
-            ordersStatuses.setLocation(orderElements.get(13).text());
-            ordersStatuses.setStatusTime(LocalDateTime.parse(orderElements.get(9).text(), DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm:ss")));
-            ordersStatuses.setRegionalCenterPhone(orderElements.get(15).text());
-            ordersStatuses.setOrdersStatusId(ordersStatusId);
+            if(!order.getOrdersStatuses().stream().anyMatch( e-> e.getStatuses().getStatusId().equals(statuses.getStatusId()))) {
+                ordersStatuses.setLocation(orderElements.get(13).text());
+                ordersStatuses.setStatusTime(LocalDateTime.parse(orderElements.get(9).text(), DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm:ss")));
+                ordersStatuses.setRegionalCenterPhone(orderElements.get(15).text());
+                ordersStatuses.setOrdersStatusId(ordersStatusId);
 
-            order.getOrdersStatuses().add(ordersStatuses);
-            ordersRepository.save(order);
+                order.getOrdersStatuses().add(ordersStatuses);
+                ordersRepository.save(order);
+            }
+
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -111,7 +115,7 @@ public class OrderStatus {
         return "index";
     }
 
-    @Scheduled(cron = "0 45 10,14,18 * * MON-FRI")
+    //@Scheduled(cron = "0 45 10,14,18 * * MON-FRI", zone="CET")
     @GetMapping(value = "/sendemail")
     private void SendEmailForOrders(){
 

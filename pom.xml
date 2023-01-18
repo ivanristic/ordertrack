@@ -64,11 +64,13 @@
 			<artifactId>selenium-devtools-v108</artifactId>
 			<version>4.7.2</version>
 		</dependency>
+		<!--
 		<dependency>
 			<groupId>io.github.bonigarcia</groupId>
 			<artifactId>webdrivermanager</artifactId>
 			<version>5.3.0</version>
 		</dependency>
+		-->
 		<dependency>
 			<groupId>org.apache.poi</groupId>
 			<artifactId>poi</artifactId>

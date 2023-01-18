@@ -51,10 +51,9 @@ public class ReadExcel {
         System.out.println(authentication.getName());
         try {
            // System.out.println(file.getOriginalFilename());
-           FileInputStream files = (FileInputStream) file.getInputStream();
 
             //Create Workbook instance holding reference to .xlsx file
-            XSSFWorkbook workbook = new XSSFWorkbook(files);
+            XSSFWorkbook workbook = new XSSFWorkbook(file.getInputStream());
 
             //Get first/desired sheet from the workbook
             XSSFSheet sheet = workbook.getSheetAt(0);
@@ -137,7 +136,6 @@ public class ReadExcel {
                     }
                 }
             }
-            files.close();
 
         } catch (Exception e) {
             e.printStackTrace();

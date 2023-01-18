@@ -5,9 +5,16 @@ services:
     build: .
     restart: always
     ports:
-      - 8080:8080
+      - 8080:8100
     depends_on:
       - ord_db
+    environment:
+      MYSQL_HOST: ord_db
+      MYSQL_PORT: 3306
+      MYSQL_DATABASE: ord_trck
+      MYSQL_USER: order
+      MYSQL_PASSWORD: nE5kMc7JCGNqwDQM
+      TZ: "Europe/Belgrade"
   ord_db:
     image: "mariadb:10.5.8"
     restart: always
