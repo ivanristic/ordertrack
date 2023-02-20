@@ -16,6 +16,8 @@ public class Statuses {
 
     @Id
     @Column(unique = true, updatable = false)
+    @GeneratedValue(strategy= GenerationType.AUTO, generator="native")
+    @GenericGenerator(name = "native", strategy = "native")
     private Long statusId;
 
     @Column

@@ -9,6 +9,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.util.ObjectUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import rs.biljnaapotekasvstefan.ordertrack.controller.SendEmail;
 import rs.biljnaapotekasvstefan.ordertrack.model.*;
@@ -87,14 +88,27 @@ public class OrderStatus {
 
             orderElements = ScrapeHelper.getElements(ScrapeHelper.createDocument(content), "div.form-tracking-info table tbody tr td");
             // setujemo status
+            //Statuses statuses = new Statuses();
+
             Statuses statuses = statusesRepository.findByStatus(orderElements.get(11).text());
+
+            if(statuses == null || ObjectUtils.isEmpty(statuses)){
+                statuses = new Statuses();
+                statuses.setStatus(orderElements.get(11).text());
+                statuses.setDelivered(false);
+                statuses.setTrack(true);
+                statuses.setTimeDelay(0L);
+                statusesRepository.save(statuses);
+
+            }
+            Statuses statusess = statuses;
             ordersStatusId.setStatusId(statuses.getStatusId());
             ordersStatusId.setOrderId(order.getOrderId());
             //ordersStatuses.getOrdersStatusId().setStatusId(statuses.getStatusId());
             //ordersStatuses.getOrdersStatusId().setOrderId(order.getOrderId());
             ordersStatuses.setStatuses(statuses);
 
-            if(!order.getOrdersStatuses().stream().anyMatch( e-> e.getStatuses().getStatusId().equals(statuses.getStatusId()))) {
+            if(!order.getOrdersStatuses().stream().anyMatch( e-> e.getStatuses().getStatusId().equals(statusess.getStatusId()))) {
                 ordersStatuses.setLocation(orderElements.get(13).text());
                 ordersStatuses.setStatusTime(LocalDateTime.parse(orderElements.get(9).text(), DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm:ss")));
                 ordersStatuses.setRegionalCenterPhone(orderElements.get(15).text());
