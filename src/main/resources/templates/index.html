@@ -44,8 +44,8 @@
                 <div class="table-data" th:utext="${order.orders.orderId}"></div>
                 <div class="table-data" th:utext="${order.orders.customers.name}"></div>
                 <div class="table-data" th:utext="${order.orders.customers.phone}"></div>
-                <div class="table-data" th:utext="${order.statuses.status}"></div>
-                <div class="table-data" th:utext="${order.location}"></div>
+                <div class="table-data" th:utext="${order.statuses!=null} ? ${order.statuses.status} : ''"></div>
+                <div class="table-data" th:utext="${order.locations!=null} ? ${order.locations.location} : ''"></div>
             </div>
         </div>
     </div>

@@ -15,7 +15,6 @@ import rs.biljnaapotekasvstefan.ordertrack.repository.OrdersRepository;
 import rs.biljnaapotekasvstefan.ordertrack.repository.OrdersStatusesRepository;
 import rs.biljnaapotekasvstefan.ordertrack.repository.UsersRepository;
 
-import java.io.FileInputStream;
 import java.time.LocalDateTime;
 import java.time.Year;
 import java.time.ZoneId;
@@ -124,7 +123,12 @@ public class ReadExcel {
                             //order.setStatus(0);
                             Set<OrdersStatuses> ordersStatusesSet = new HashSet<>();
                             OrdersStatuses orderStatus = new OrdersStatuses();
-                            OrdersStatusId ordersStatusId = new OrdersStatusId(11L, row.getCell(0).getStringCellValue());
+                            //OrdersStatusId ordersStatusId = new OrdersStatusId(11L, row.getCell(0).getStringCellValue());
+                            OrdersStatusId ordersStatusId = new OrdersStatusId();
+                            //ordersStatusId.setStatusId(9L);
+                            //ordersStatusId.setLocationId(1L);
+                            ordersStatusId.setOrderId(row.getCell(0).getStringCellValue());
+
                             orderStatus.setOrdersStatusId(ordersStatusId);
                             orderStatus.setStatusTime(LocalDateTime.parse(row.getCell(19).getDateCellValue().toString(), fmt));
                             ordersStatusesSet.add(orderStatus);

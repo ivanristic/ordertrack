@@ -21,9 +21,6 @@ public class OrdersStatuses {
     private LocalDateTime statusTime;
 
     @Column
-    private String location;
-
-    @Column
     private String regionalCenterPhone;
 
     @ManyToOne
@@ -32,6 +29,8 @@ public class OrdersStatuses {
     @ManyToOne
     @JoinColumn(name = "orderId", insertable = false, updatable = false)
     private Orders orders;
-
+    @ManyToOne
+    @JoinColumn(name = "locationId", insertable = false, updatable = false)
+    private Locations locations;
 
 }

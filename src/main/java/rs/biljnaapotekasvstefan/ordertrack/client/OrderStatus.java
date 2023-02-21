@@ -18,18 +18,11 @@ import rs.biljnaapotekasvstefan.ordertrack.scrape.engine.ScrapeLoader;
 import rs.biljnaapotekasvstefan.ordertrack.scrape.helper.ScrapeHelper;
 import rs.biljnaapotekasvstefan.ordertrack.scrape.loader.PageLoaderImpl;
 
-import jakarta.mail.internet.AddressException;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.time.Duration;
 import java.time.LocalDateTime;
-import java.time.Period;
 import java.time.format.DateTimeFormatter;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
-import java.util.function.Predicate;
-import java.util.stream.Collectors;
 
 @Controller
 public class OrderStatus {
@@ -56,6 +49,8 @@ public class OrderStatus {
 
     @Autowired
     SendEmail sendEmail;
+    @Autowired
+    private LocationsRepository locationsRepository;
 
     //At minute 45 past hour 10 and 14 on every day-of-week from Monday through Friday.
     @Scheduled(cron = "0 30 9,11,14,16,18 * * MON-SAT", zone="CET")
@@ -72,10 +67,10 @@ public class OrderStatus {
     }
 
     public void LoadPageAndCheckOrderStatus(Orders order) {
-        String ANSI_RED = "\u001B[31m";
-        String ANSI_RESET = "\u001B[0m";
-        String ANSI_GREEN = "\u001B[32m";
-        String ANSI_PURPLE = "\u001B[35m";
+        //String ANSI_RED = "\u001B[31m";
+        //String ANSI_RESET = "\u001B[0m";
+        //String ANSI_GREEN = "\u001B[32m";
+        //String ANSI_PURPLE = "\u001B[35m";
         String content = null;
         Elements orderElements = null;
 
@@ -101,21 +96,48 @@ public class OrderStatus {
                 statusesRepository.save(statuses);
 
             }
-            Statuses statusess = statuses;
+            Statuses status = statuses;
             ordersStatusId.setStatusId(statuses.getStatusId());
             ordersStatusId.setOrderId(order.getOrderId());
             //ordersStatuses.getOrdersStatusId().setStatusId(statuses.getStatusId());
             //ordersStatuses.getOrdersStatusId().setOrderId(order.getOrderId());
-            ordersStatuses.setStatuses(statuses);
+            ordersStatuses.setStatuses(status);
+            Locations locations = locationsRepository.findByLocation(orderElements.get(13).text());
 
-            if(!order.getOrdersStatuses().stream().anyMatch( e-> e.getStatuses().getStatusId().equals(statusess.getStatusId()))) {
-                ordersStatuses.setLocation(orderElements.get(13).text());
+            if(locations == null || ObjectUtils.isEmpty(locations)){
+                locations = new Locations();
+                locations.setLocation(orderElements.get(13).text());
+                locationsRepository.save(locations);
+
+            }
+            ordersStatusId.setStatusId(statuses.getStatusId());
+            ordersStatusId.setOrderId(order.getOrderId());
+            ordersStatusId.setLocationId(locations.getLocationId());
+
+            Locations location = locations;
+            // za inicijalno učitavanje
+            if(order.getOrdersStatuses().size() == 1){
+
                 ordersStatuses.setStatusTime(LocalDateTime.parse(orderElements.get(9).text(), DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm:ss")));
                 ordersStatuses.setRegionalCenterPhone(orderElements.get(15).text());
                 ordersStatuses.setOrdersStatusId(ordersStatusId);
 
                 order.getOrdersStatuses().add(ordersStatuses);
                 ordersRepository.save(order);
+            }else {
+                // provera da li već ima statusa i ako nema upisujemo
+                if (!order.getOrdersStatuses().stream()
+                        .anyMatch(e -> e.getStatuses().getStatusId().equals(status.getStatusId())
+                                && e.getLocations().getLocationId().equals(location.getLocationId()))) {
+
+
+                    ordersStatuses.setStatusTime(LocalDateTime.parse(orderElements.get(9).text(), DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm:ss")));
+                    ordersStatuses.setRegionalCenterPhone(orderElements.get(15).text());
+                    ordersStatuses.setOrdersStatusId(ordersStatusId);
+
+                    order.getOrdersStatuses().add(ordersStatuses);
+                    ordersRepository.save(order);
+                }
             }
 
         } catch (Exception e) {

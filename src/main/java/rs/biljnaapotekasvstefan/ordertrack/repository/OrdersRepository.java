@@ -14,12 +14,12 @@ public interface OrdersRepository extends CrudRepository<Orders, Long> {
 
     List<Orders> findOrderByOrdersStatusesStatusesDelivered(Boolean status);
 
-    @Query("select o from OrdersStatuses os, Orders o, Statuses s " +
-            "where os.ordersStatusId.orderId = o.orderId " +
-            "and os.ordersStatusId.statusId = s.statusId " +
-            "and s.delivered = 0" +
-            "and os.statusTime = (select MAX(os2.statusTime) from OrdersStatuses os2 " +
-            "where os2.ordersStatusId.orderId = os.ordersStatusId.orderId)")
+    @Query("select o from OrdersStatuses os " +
+            "left join Statuses s on (os.ordersStatusId.statusId = s.statusId and s.delivered = 0) " +
+            "left join Orders o on os.ordersStatusId.orderId = o.orderId " +
+            "inner join OrdersStatuses os2 on " +
+            "os2.statusTime = (select MAX(os2.statusTime) from OrdersStatuses os2 where os2.ordersStatusId.orderId = os.ordersStatusId.orderId) " +
+            "and os2.ordersStatusId.orderId = os.ordersStatusId.orderId")
     List<Orders> findUndeliveredOrders();
     //List<Orders> findOrdersByStatusAndStatusDateAfter(Boolean status, LocalDateTime dateTime);
 
