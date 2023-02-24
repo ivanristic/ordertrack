@@ -16,13 +16,15 @@ public interface OrdersStatusesRepository extends CrudRepository<OrdersStatuses,
             "and o.users.username = :username " +
             "and os.statusTime = (select MAX(os2.statusTime) from OrdersStatuses os2 " +
                 "where os2.ordersStatusId.orderId = os.ordersStatusId.orderId)")*/
-    @Query("select os from OrdersStatuses os " +
-            "left join Statuses s on (os.ordersStatusId.statusId = s.statusId and s.delivered = 0) " +
-            "left join Orders o on (os.ordersStatusId.orderId = o.orderId and o.users.username = :username) " +
-            "inner join OrdersStatuses os2 on " +
-            "os2.statusTime = (select MAX(os2.statusTime) from OrdersStatuses os2 where os2.ordersStatusId.orderId = os.ordersStatusId.orderId) " +
-            "and os2.ordersStatusId.orderId = os.ordersStatusId.orderId")
-    List<OrdersStatuses> findUndeliveredOrdersForUser(@Param("username") String username);
+    @Query("select os from OrdersStatuses os, Statuses s, Orders o " +
+            "where os.localStatusTime = " +
+                "(select max(os2.localStatusTime) from OrdersStatuses os2 " +
+                "where os2.ordersStatusId.orderId = os.ordersStatusId.orderId) " +
+            "and (ifnull(os.ordersStatusId.statusId, 9) = s.statusId and s.delivered=0) " +
+            "and os.ordersStatusId.orderId = o.orderId " +
+            "and o.users.username = :username"
+    )
+    List<OrdersStatuses> findUndeliveredOrdersOrderStatusesForUser(@Param("username") String username);
     /*
     @Query("select os from OrdersStatuses os, Orders o, Customers c, Statuses s " +
             "where os.ordersStatusId.orderId = o.orderId " +

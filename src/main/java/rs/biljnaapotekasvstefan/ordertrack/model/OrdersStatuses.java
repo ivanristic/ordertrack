@@ -21,6 +21,9 @@ public class OrdersStatuses {
     private LocalDateTime statusTime;
 
     @Column
+    private LocalDateTime localStatusTime;
+
+    @Column
     private String regionalCenterPhone;
 
     @ManyToOne

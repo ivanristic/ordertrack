@@ -23,6 +23,7 @@ import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Controller
 public class OrderStatus {
@@ -117,6 +118,42 @@ public class OrderStatus {
             Locations location = locations;
             // za inicijalno učitavanje
             if(order.getOrdersStatuses().size() == 1){
+                ordersStatuses.setLocalStatusTime(LocalDateTime.now());
+                ordersStatuses.setStatusTime(LocalDateTime.parse(orderElements.get(9).text(), DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm:ss")));
+                ordersStatuses.setRegionalCenterPhone(orderElements.get(15).text());
+                ordersStatuses.setOrdersStatusId(ordersStatusId);
+
+                order.getOrdersStatuses().add(ordersStatuses);
+                ordersRepository.save(order);
+            }else{
+                if (!order.getOrdersStatuses().stream().filter(e -> e.getStatuses() != null || e.getLocations() != null)
+                        .anyMatch(e -> e.getStatuses().getStatusId().equals(status.getStatusId())
+                                && e.getLocations().getLocationId().equals(location.getLocationId()))){
+                    ordersStatuses.setLocalStatusTime(LocalDateTime.now());
+                    ordersStatuses.setStatusTime(LocalDateTime.parse(orderElements.get(9).text(), DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm:ss")));
+                    ordersStatuses.setRegionalCenterPhone(orderElements.get(15).text());
+                    ordersStatuses.setOrdersStatusId(ordersStatusId);
+
+                    order.getOrdersStatuses().add(ordersStatuses);
+                    ordersRepository.save(order);
+                }
+            }
+            /*
+            for (OrdersStatuses ordersStatus: order.getOrdersStatuses()) {
+                if(ordersStatus.getStatuses() != null && ordersStatus.getLocations() != null){
+                    if(!ordersStatus.getStatuses().getStatusId().equals(status.getStatusId()) && !ordersStatus.getLocations().getLocationId().equals(location.getLocationId())){
+                        ordersStatuses.setStatusTime(LocalDateTime.parse(orderElements.get(9).text(), DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm:ss")));
+                        ordersStatuses.setRegionalCenterPhone(orderElements.get(15).text());
+                        ordersStatuses.setOrdersStatusId(ordersStatusId);
+
+                        order.getOrdersStatuses().add(ordersStatuses);
+                        ordersRepository.save(order);
+                    }
+                }
+            }
+            */
+            /*
+            if(order.getOrdersStatuses().size() == 1){
 
                 ordersStatuses.setStatusTime(LocalDateTime.parse(orderElements.get(9).text(), DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm:ss")));
                 ordersStatuses.setRegionalCenterPhone(orderElements.get(15).text());
@@ -139,6 +176,8 @@ public class OrderStatus {
                     ordersRepository.save(order);
                 }
             }
+            
+             */
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -147,7 +186,7 @@ public class OrderStatus {
     @GetMapping(value = "/")
     private String ShowOrders(Model model){
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        model.addAttribute("ordersStatuses", ordersStatusesRepository.findUndeliveredOrdersForUser(authentication.getName()));
+        model.addAttribute("ordersStatuses", ordersStatusesRepository.findUndeliveredOrdersOrderStatusesForUser(authentication.getName()));
         return "index";
     }
 
@@ -164,7 +203,7 @@ public class OrderStatus {
         String[] sendTo = null;
         //String[] s = emails.stream().map(e -> e.getEmail()).toArray(String[]::new);
         for (Users user:usersList) {
-            List<OrdersStatuses> ordersFailedList = ordersStatusesRepository.findUndeliveredOrdersForUser(user.getUsername());
+            List<OrdersStatuses> ordersFailedList = ordersStatusesRepository.findUndeliveredOrdersOrderStatusesForUser(user.getUsername());
 
             sendTo = user.getEmails().stream().filter(e -> e.getUsers().getUsername().equals(user.getUsername())).map(u -> u.getEmail()).toArray(String[]::new);
 

@@ -128,7 +128,7 @@ public class ReadExcel {
                             //ordersStatusId.setStatusId(9L);
                             //ordersStatusId.setLocationId(1L);
                             ordersStatusId.setOrderId(row.getCell(0).getStringCellValue());
-
+                            orderStatus.setLocalStatusTime(LocalDateTime.now());
                             orderStatus.setOrdersStatusId(ordersStatusId);
                             orderStatus.setStatusTime(LocalDateTime.parse(row.getCell(19).getDateCellValue().toString(), fmt));
                             ordersStatusesSet.add(orderStatus);

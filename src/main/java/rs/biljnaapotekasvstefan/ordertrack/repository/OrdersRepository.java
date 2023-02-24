@@ -14,12 +14,16 @@ public interface OrdersRepository extends CrudRepository<Orders, Long> {
 
     List<Orders> findOrderByOrdersStatusesStatusesDelivered(Boolean status);
 
-    @Query("select o from OrdersStatuses os " +
-            "left join Statuses s on (os.ordersStatusId.statusId = s.statusId and s.delivered = 0) " +
-            "left join Orders o on os.ordersStatusId.orderId = o.orderId " +
-            "inner join OrdersStatuses os2 on " +
-            "os2.statusTime = (select MAX(os2.statusTime) from OrdersStatuses os2 where os2.ordersStatusId.orderId = os.ordersStatusId.orderId) " +
-            "and os2.ordersStatusId.orderId = os.ordersStatusId.orderId")
+    /*@Query("select o from OrdersStatuses os " +
+            "inner join Statuses s on (os.ordersStatusId.statusId = s.statusId and s.delivered = 0) " +
+            "inner join Orders o on os.ordersStatusId.orderId = o.orderId " +
+            "where os.statusTime = (select MAX(os2.statusTime) from OrdersStatuses os2 where os2.ordersStatusId.orderId = os.ordersStatusId.orderId)")*/
+    @Query("select o from OrdersStatuses os, Statuses s, Orders o " +
+            "where os.localStatusTime = " +
+            "(select max(os2.localStatusTime) from OrdersStatuses os2 " +
+            "where os2.ordersStatusId.orderId = os.ordersStatusId.orderId) " +
+            "and (ifnull(os.ordersStatusId.statusId, 9) = s.statusId and s.delivered=0) " +
+            "and os.ordersStatusId.orderId = o.orderId")
     List<Orders> findUndeliveredOrders();
     //List<Orders> findOrdersByStatusAndStatusDateAfter(Boolean status, LocalDateTime dateTime);
 
